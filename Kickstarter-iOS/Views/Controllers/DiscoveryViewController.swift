@@ -18,6 +18,9 @@ internal final class DiscoveryViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    // compactMap: 返回没有nil的结果
+    // 这里通过子类来实例化pageViewController(这样storyboard就不用segue了)
+    // (自己写的tabPage也改成这样了)
     self.pageViewController = self.children
       .compactMap { $0 as? UIPageViewController }.first
     self.pageViewController.setViewControllers(
@@ -28,10 +31,12 @@ internal final class DiscoveryViewController: UIViewController {
     )
     self.pageViewController.delegate = self
 
+    // tapPage: 也是通过children从storyboard拿到
     self.sortPagerViewController = self.children
       .compactMap { $0 as? SortPagerViewController }.first
     self.sortPagerViewController.delegate = self
 
+    // 顶部导航条
     self.navigationHeaderViewController = self.children
       .compactMap { $0 as? DiscoveryNavigationHeaderViewController }.first
     self.navigationHeaderViewController.delegate = self
@@ -39,14 +44,21 @@ internal final class DiscoveryViewController: UIViewController {
     self.liveStreamDiscoveryViewController = self.children
       .compactMap { $0 as? LiveStreamDiscoveryViewController }.first
 
+    // 绑定方式和RxSwift有差异
+//    rx.viewWillAppear.mapToVoid()
+//      .bind(to: viewModel.inputs.viewWillAppear)
+//      .disposed(by: disposeBag)
+
     self.viewModel.inputs.viewDidLoad()
   }
 
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
 
+    // 感觉RxSwift的方法更集中
     self.viewModel.inputs.viewWillAppear(animated: animated)
 
+    // 如果是RxSwift, 这里还是要override viewWillAppear方法吗
     self.navigationController?.setNavigationBarHidden(true, animated: animated)
   }
 
@@ -139,6 +151,8 @@ internal final class DiscoveryViewController: UIViewController {
   }
 
   private func setPageViewControllerScrollEnabled(_ enabled: Bool) {
+    // setPageViewControllerScrollEnabled是通过output sortsAreEnabled来设置的
+    // 而sortsAreEnabled 又是通过 input setSortsEnabled来设置，感觉就是一个循环
     self.pageViewController.dataSource = enabled == false ? nil : self.dataSource
   }
 }
@@ -149,6 +163,7 @@ extension DiscoveryViewController: UIPageViewControllerDelegate {
                                    previousViewControllers: [UIViewController],
                                    transitionCompleted completed: Bool) {
 
+    // 将pageViewController的回调发送到input中
     self.viewModel.inputs.pageTransition(completed: completed)
   }
 
@@ -160,18 +175,23 @@ extension DiscoveryViewController: UIPageViewControllerDelegate {
       return
     }
 
+    // 貌似都将回调传入inputs了，都用得到吗
     self.viewModel.inputs.willTransition(toPage: idx)
   }
 }
 
 extension DiscoveryViewController: SortPagerViewControllerDelegate {
+  // 顶部点击事件的回调
+  // 传入的参数不是index，而是enum的值
   internal func sortPager(_ viewController: UIViewController, selectedSort sort: DiscoveryParams.Sort) {
     self.viewModel.inputs.sortPagerSelected(sort: sort)
   }
 }
 
 extension DiscoveryViewController: DiscoveryNavigationHeaderViewDelegate {
+  // 顶部的点击事件的回调
   func discoveryNavigationHeaderFilterSelectedParams(_ params: DiscoveryParams) {
+    // 这里其实也作为modelView的input传入了，只不过其他类也要调用，所以写成filter()方法
     self.filter(with: params)
   }
 }

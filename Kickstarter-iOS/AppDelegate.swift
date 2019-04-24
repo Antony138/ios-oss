@@ -224,6 +224,7 @@ internal final class AppDelegate: UIResponder, UIApplicationDelegate {
     return self.viewModel.outputs.applicationDidFinishLaunchingReturnValue
   }
 
+  // 如果是RxSwift，是不是就可以都绑定在一个地方？
   func applicationWillEnterForeground(_ application: UIApplication) {
     self.viewModel.inputs.applicationWillEnterForeground()
   }

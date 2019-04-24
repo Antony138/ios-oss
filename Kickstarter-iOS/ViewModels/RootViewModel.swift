@@ -169,9 +169,15 @@ internal final class RootViewModel: RootViewModelType, RootViewModelInputs, Root
       .map { ($0 != nil, ($0?.stats.memberProjectsCount ?? 0) > 0) }
       .skipRepeats(==)
 
+    // generate App 需要的4个VC，因为profile比较特殊，所以单独创建
+    // 这里的signal，应该和Observable类似
     let standardViewControllers = self.viewDidLoadProperty.signal.map { generateStandardViewControllers() }
     let personalizedViewControllers = userState.map { generatePersonalizedViewControllers(userState: $0) }
 
+    // combineLatest: 将两个Signal合成一个, 发出的数据，就是一个Tuple类型
+    // 不过这里利用map(+)，将Tuple又改为原来的类型——数组类型：[RootViewControllerData]
+    // 如果没有map(+)，类型就会是：([RootViewControllerData], [RootViewControllerData])
+    // 好像RxSwift没有这个操作？？？
     let viewControllers = Signal.combineLatest(standardViewControllers, personalizedViewControllers).map(+)
 
     let refreshedViewControllers = userState.takeWhen(self.userLocalePreferencesChangedProperty.signal)

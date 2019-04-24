@@ -75,6 +75,8 @@ public final class RootTabBarViewController: UITabBarController {
   override public func bindViewModel() {
     super.bindViewModel()
 
+    // 在这里绑定、设置tabVC的viewControllers（viewControllers作为output）
+    // 4个vc: .discovery, .activities, .search, .profile
     self.viewModel.outputs.setViewControllers
       .observeForUI()
       .map { $0.map { $0.viewController }.compact() }
