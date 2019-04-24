@@ -4,6 +4,7 @@ import Prelude_UIKit
 import ReactiveSwift
 import UIKit
 
+// 登录界面（有Forgot your passwoar的VC）
 internal final class LoginViewController: UIViewController {
   @IBOutlet fileprivate weak var emailTextField: UITextField!
   @IBOutlet fileprivate weak var forgotPasswordButton: UIButton!

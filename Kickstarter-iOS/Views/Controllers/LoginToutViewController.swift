@@ -7,6 +7,7 @@ import KsApi
 import Prelude
 import FBSDKLoginKit
 
+// 登录注册界面(VC)
 internal final class LoginToutViewController: UIViewController, MFMailComposeViewControllerDelegate {
   @IBOutlet fileprivate weak var contextLabel: UILabel!
   @IBOutlet fileprivate weak var bringCreativeProjectsToLifeLabel: UILabel!
@@ -284,6 +285,7 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
   }
 
   @IBAction fileprivate func facebookLoginButtonPressed(_ sender: UIButton) {
+    // input
     self.viewModel.inputs.facebookLoginButtonPressed()
   }
 

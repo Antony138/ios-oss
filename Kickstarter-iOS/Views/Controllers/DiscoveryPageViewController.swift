@@ -298,6 +298,7 @@ ActivitySampleProjectCellDelegate {
 }
 
 extension DiscoveryPageViewController: DiscoveryOnboardingCellDelegate {
+  // 首页点击登录按钮会回调到这里，然后从之类跳进登录、注册界面（LoginToutViewController）
   internal func discoveryOnboardingTappedSignUpLoginButton() {
     let loginTout = LoginToutViewController.configuredWith(loginIntent: .discoveryOnboarding)
     let nav = UINavigationController(rootViewController: loginTout)

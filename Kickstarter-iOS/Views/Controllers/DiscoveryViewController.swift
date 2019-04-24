@@ -29,6 +29,7 @@ internal final class DiscoveryViewController: UIViewController {
       animated: false,
       completion: nil
     )
+    // 不用设置dataSource？？？
     self.pageViewController.delegate = self
 
     // tapPage: 也是通过children从storyboard拿到
@@ -88,6 +89,7 @@ internal final class DiscoveryViewController: UIViewController {
       .observeForControllerAction()
       .observeValues { [weak self] in self?.navigationHeaderViewController.configureWith(params: $0) }
 
+    // 在这里去设置pageVC的dataSource
     self.viewModel.outputs.configurePagerDataSource
       .observeForControllerAction()
       .observeValues { [weak self] in self?.configurePagerDataSource($0) }
@@ -135,6 +137,7 @@ internal final class DiscoveryViewController: UIViewController {
     self.viewModel.inputs.setSortsEnabled(enabled)
   }
 
+  // 从outputs拿到数据后，赋值pageViewController的数据源，并setViewControllers()
   fileprivate func configurePagerDataSource(_ sorts: [DiscoveryParams.Sort]) {
     self.dataSource = DiscoveryPagesDataSource(sorts: sorts)
 

@@ -34,6 +34,7 @@ internal final class DiscoveryPagesDataSource: NSObject, UIPageViewControllerDat
     return self.viewControllers[index]
   }
 
+  // 把UIPageViewController的数据源解耦到这里了
   internal func pageViewController(
     _ pageViewController: UIPageViewController,
     viewControllerAfter viewController: UIViewController) -> UIViewController? {

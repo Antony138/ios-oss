@@ -82,6 +82,7 @@ DiscoveryViewModelOutputs {
   public init() {
     let sorts: [DiscoveryParams.Sort] = [.magic, .popular, .newest, .endingSoon]
 
+    // mapConst: 将sequence里的值改为常量, 固定4个: .magic, .popular, .newest, .endingSoon
     self.configurePagerDataSource = self.viewDidLoadProperty.signal.mapConst(sorts)
     self.configureSortPager = self.configurePagerDataSource
 
