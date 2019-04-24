@@ -141,6 +141,8 @@ internal final class DiscoveryViewController: UIViewController {
   fileprivate func configurePagerDataSource(_ sorts: [DiscoveryParams.Sort]) {
     self.dataSource = DiscoveryPagesDataSource(sorts: sorts)
 
+    // 在这里赋值dataSource, 意思就是就将事情交给DiscoveryPagesDataSource去做了
+    // UIPageViewControllerDataSource是一个conform了UIPageViewControllerDataSource的NSObject对象
     self.pageViewController.dataSource = self.dataSource
 
     DispatchQueue.main.async {

@@ -67,13 +67,21 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
 
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
+    // 可以通过判断presentingViewController属性是否为nil，来判断是否是通过present的方式进去的。
+    // MARK: Inputs 5: viewWillAppear >>> view(isPresented)
+    // 用于是否要以dismiss方式退出
+    // 是否可以用viewWillAppear加一个Bool参数, 统一成一个input？
     self.viewModel.inputs.view(isPresented: self.presentingViewController != nil)
+    
+    // MARK: Inputs 6: viewWillAppear
     self.viewModel.inputs.viewWillAppear()
   }
 
+  // 这个写法和bindViewModel()类似, 不过调用是在viewDidLoad后(bindViewModel()是在viewDidLoad之前)
   override func bindStyles() {
     super.bindStyles()
 
+    // 这种写法没见过
     _ = self |> baseControllerStyle()
     _ = self.fbLoginButton |> fbLoginButtonStyle
     _ = self.disclaimerButton
@@ -113,24 +121,31 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
     }
 
     override func bindViewModel() {
+      
+      // MARK: Output 1: startLogin >> pushLoginViewController
     self.viewModel.outputs.startLogin
       .observeForControllerAction()
       .observeValues { [weak self] _ in
         self?.pushLoginViewController()
     }
 
+      // MARK: Output 2: startSignup >> pushSignupViewController
     self.viewModel.outputs.startSignup
       .observeForControllerAction()
       .observeValues { [weak self] _ in
         self?.pushSignupViewController()
     }
 
+      // MARK: Output 2: logIntoEnvironment >> inputs.environmentLoggedIn
+      // 这里的output, 又作为input传入(会影响下面的output: postNotification), 这样做的目的, 仅仅是为了减少VC的代码量吗
     self.viewModel.outputs.logIntoEnvironment
       .observeValues { [weak self] accessTokenEnv in
         AppEnvironment.login(accessTokenEnv)
         self?.viewModel.inputs.environmentLoggedIn()
     }
 
+      // MARK: Output 3: postNotification
+      // 发送两个通告: ksr_sessionStarted, ksr_showNotificationsDialog
     self.viewModel.outputs.postNotification
       .observeForUI()
       .observeValues {
@@ -138,20 +153,26 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
         NotificationCenter.default.post($0.1)
       }
 
+      // MARK: Output 4: startFacebookConfirmation
     self.viewModel.outputs.startFacebookConfirmation
       .observeForControllerAction()
       .observeValues { [weak self] (user, token) in
         self?.pushFacebookConfirmationController(facebookUser: user, facebookToken: token)
     }
 
+      // MARK: Output 5: startTwoFactorChallenge
+      // 两步验证相关的内容?
     self.viewModel.outputs.startTwoFactorChallenge
       .observeForControllerAction()
       .observeValues { [weak self] token in
         self?.pushTwoFactorViewController(facebookAccessToken: token)
     }
 
+      // MARK: Output 6: attemptFacebookLogin >> attemptFacebookLogin
+      // 点击Facebook按钮的时候会调用Facebook的Login框架(然后还会有2个input进去)
     self.viewModel.outputs.attemptFacebookLogin
-      .observeValues { [weak self] _ in self?.attemptFacebookLogin()
+      .observeValues { [weak self] _ in
+        self?.attemptFacebookLogin()
     }
 
     self.viewModel.outputs.showFacebookErrorAlert

@@ -150,6 +150,7 @@ public final class LoginToutViewModel: LoginToutViewModelType, LoginToutViewMode
       .takePairWhen(facebookSignupError)
       .map { token, error in (error.facebookUser ?? nil, token) }
 
+      // 在viewModel里面发送通告
     self.postNotification = self.environmentLoggedInProperty.signal
       .mapConst((Notification(name: .ksr_sessionStarted),
                  Notification(name: .ksr_showNotificationsDialog,
