@@ -19,6 +19,8 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
   @IBOutlet fileprivate weak var rootStackView: UIStackView!
   @IBOutlet fileprivate weak var facebookDisclaimerLabel: UILabel!
 
+  // 这个VC用到了2个不同的viewModel
+  // 这里直接用HelpViewModel()初始化，没有用单例，不会有问题吗？
   fileprivate let helpViewModel = HelpViewModel()
   private var sessionStartedObserver: Any?
   fileprivate let viewModel: LoginToutViewModelType = LoginToutViewModel()
@@ -48,7 +50,10 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
         self?.viewModel.inputs.userSessionStarted()
     }
 
+    // 如果是present进去的VC，这个VC会有presentingViewController属性？然后可以根据这个来判断是否是present方式跳转进去的。
     if self.presentingViewController != nil {
+      // 动态判断去增加，因为不是每个页面都需要这个close按钮
+      // 如果不判断，从profile进去的login画面，会错误出现close按钮
       self.navigationItem.leftBarButtonItem = .close(self, selector: #selector(closeButtonPressed))
     }
     self.navigationItem.rightBarButtonItem = .help(self, selector: #selector(helpButtonPressed))
@@ -273,23 +278,27 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
   }
 
   @objc fileprivate func closeButtonPressed() {
+    // 这个点击事件, 不需要viewModel进行处理, 所以不需要弄成input
     self.dismiss(animated: true, completion: nil)
   }
 
   @IBAction fileprivate func helpButtonPressed() {
+    // MARK: Input 1: button tap - Help
     self.helpViewModel.inputs.showHelpSheetButtonTapped()
   }
 
-  @IBAction fileprivate func loginButtonPressed(_ sender: UIButton) {
-    self.viewModel.inputs.loginButtonPressed()
-  }
-
   @IBAction fileprivate func facebookLoginButtonPressed(_ sender: UIButton) {
-    // input
+    // MARK: Input 2: button tap - Facebook
     self.viewModel.inputs.facebookLoginButtonPressed()
   }
 
+  @IBAction fileprivate func loginButtonPressed(_ sender: UIButton) {
+    // MARK: Input 3: button tap - Log in
+    self.viewModel.inputs.loginButtonPressed()
+  }
+
   @IBAction fileprivate func signupButtonPressed() {
+    // MARK: Input 4: button tap - Sign up
     self.viewModel.inputs.signupButtonPressed()
   }
 }
