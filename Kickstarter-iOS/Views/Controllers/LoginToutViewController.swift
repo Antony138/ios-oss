@@ -36,6 +36,7 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
     let vc = Storyboard.Login.instantiate(LoginToutViewController.self)
     vc.viewModel.inputs.loginIntent(intent)
     vc.helpViewModel.inputs.configureWith(helpContext: .loginTout)
+    // 在这里设置了helpViewModel的input, 所以是(canSendMail)每用一次, 都要调用一次?
     vc.helpViewModel.inputs.canSendEmail(MFMailComposeViewController.canSendMail())
     return vc
   }
@@ -72,7 +73,7 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
     // 用于是否要以dismiss方式退出
     // 是否可以用viewWillAppear加一个Bool参数, 统一成一个input？
     self.viewModel.inputs.view(isPresented: self.presentingViewController != nil)
-    
+
     // MARK: Inputs 6: viewWillAppear
     self.viewModel.inputs.viewWillAppear()
   }
@@ -121,7 +122,7 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
     }
 
     override func bindViewModel() {
-      
+
       // MARK: Output 1: startLogin >> pushLoginViewController
     self.viewModel.outputs.startLogin
       .observeForControllerAction()
@@ -149,6 +150,7 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
     self.viewModel.outputs.postNotification
       .observeForUI()
       .observeValues {
+        // 在viewModel组织好要发送的通告，在这里直接发送（可以在viewModel直接发送吗？放在这里发送，仅仅是为了统一？）
         NotificationCenter.default.post($0.0)
         NotificationCenter.default.post($0.1)
       }
@@ -175,6 +177,8 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
         self?.attemptFacebookLogin()
     }
 
+      // MARK: Output 7: showFacebookErrorAlert
+      // 弹出Facebook登录错误
     self.viewModel.outputs.showFacebookErrorAlert
       .observeForControllerAction()
       .observeValues { [weak self] error in
@@ -185,18 +189,26 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
         )
     }
 
+      // MARK: Output 8: dismissViewController
+      // userSessionStarted的时候，这个output会emit event出来
+      // 而userSessionStarted的触发，是监听ksr_sessionStarted通告而触发的
     self.viewModel.outputs.dismissViewController
       .observeForControllerAction()
       .observeValues { [weak self] in
         self?.dismiss(animated: true, completion: nil)
     }
 
+      // MARK: Output 9: showHelpSheet
+      // 触发弹出HelpSheet
     self.helpViewModel.outputs.showHelpSheet
       .observeForControllerAction()
       .observeValues { [weak self] in
+        // emit出来的是一个array, 里面有显示actionSheet需要的数据(5个类型)
         self?.showHelpSheet(helpTypes: $0)
     }
 
+      // MARK: Output 10: showMailCompose
+      // "canSendEmail"为true, 弹出"撰写"email的页面
     self.helpViewModel.outputs.showMailCompose
       .observeForControllerAction()
       .observeValues { [weak self] in
@@ -206,12 +218,16 @@ internal final class LoginToutViewController: UIViewController, MFMailComposeVie
         _self.present(controller, animated: true, completion: nil)
     }
 
+      // MARK: Output 11: showNoEmailError
+      // 如果手机没有设置email, "canSendEmail"为false
     self.helpViewModel.outputs.showNoEmailError
       .observeForControllerAction()
       .observeValues { [weak self] alert in
         self?.present(alert, animated: true, completion: nil)
     }
 
+      // MARK: Output 12: showWebHelp
+      // 跳到网站的, 都从这里回调出来, 参数helpType决定跳转到哪个网页
     self.helpViewModel.outputs.showWebHelp
       .observeForControllerAction()
       .observeValues { [weak self] helpType in

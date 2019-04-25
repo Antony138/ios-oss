@@ -66,7 +66,9 @@ public protocol HelpViewModelType {
 public final class HelpViewModel: HelpViewModelType, HelpViewModelInputs, HelpViewModelOutputs {
     public init() {
     let context = self.helpContextProperty.signal.skipNil()
+      // canSendEmail是通过系统的MessageUI(MFMailComposeViewController)拿到, 作为判断是否显示"showNoEmailError"的依据之一
     let canSendEmail = self.canSendEmailProperty.signal.skipNil()
+      // 将点击help button的事件转化为过滤掉nil的sequence, 下面showNoEmailError等地方要用到
     let helpTypeTapped = self.helpTypeButtonTappedProperty.signal.skipNil()
 
     self.showMailCompose = canSendEmail
@@ -82,6 +84,9 @@ public final class HelpViewModel: HelpViewModelType, HelpViewModelInputs, HelpVi
     self.showWebHelp = helpTypeTapped
       .filter { $0 != .contact }
 
+      // Help button被点击时,emit出showHelpSheet, 数据是mapConst()出来的常量(sheet中的5个内容)
+      // 所以viewModel的职责,是emit数据出去,不用关心VC怎么操作Views,关心VC要什么数据即可
+      // 所以, viewModel之所以叫viewModel, 就是这个原因? 以前觉得不合理, 现在觉得好像合理了
     self.showHelpSheet = self.showHelpSheetButtonTappedProperty.signal
       .mapConst([HelpType.howItWorks, .contact, .terms, .privacy, .cookie])
 

@@ -281,6 +281,8 @@ public enum Strings {
   }
   /**
    "All Journalism Projects"
+   
+   Test
 
    - **en**: "All Journalism Projects"
    - **de**: "Alle Projekte der Kategorie Journalismus"

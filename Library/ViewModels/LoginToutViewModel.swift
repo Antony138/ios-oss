@@ -156,6 +156,7 @@ public final class LoginToutViewModel: LoginToutViewModelType, LoginToutViewMode
                  Notification(name: .ksr_showNotificationsDialog,
                               userInfo: [UserInfoKeys.context: PushNotificationDialog.Context.login])))
 
+      // userSessionStarted的时候，emit event出去，dismiss视图
     self.dismissViewController = self.viewIsPresentedProperty.signal
       .filter(isTrue)
       .takeWhen(self.userSessionStartedProperty.signal)
